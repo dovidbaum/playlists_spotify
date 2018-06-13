@@ -1,19 +1,17 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
-let defaultTextColor = "#fff";
 let defaultStyle = {
-    color: defaultTextColor,
-
+    color: "#fff"
 }
 
 /*Once you make a class, it now becomes available to you as a tag */
 class Aggregate extends Component{
     render(){
         return(
-           <div style={{width:"40%", display: "inline-block"}}>
-               <h2 style={{color:"purple"}}>Number Text</h2>
+            //...allows you to have an object that you can extend
+           <div style={{...defaultStyle,width:"40%", display: "inline-block"}}>
+               <h2>Number Text</h2>
            </div>
         );
     }
@@ -51,7 +49,7 @@ class App extends Component {
       let name = 'Dovid';
     return (
       <div className="App">
-          <h1 style={{color:defaultTextColor}}>Title</h1>
+          <h1 style={{...defaultStyle,'font-size':'54px'}}>Title</h1>
           <Aggregate/>
           <Aggregate/>
           <Filter/>
