@@ -78,8 +78,12 @@ class Playlist extends Component{
         return(
             <div style={{...defaultStyle,width:"25%",display:"inline-block"}}>
                 <img/>
-                <h3> Name</h3>
-                <ul><li>Song 1</li><li>Song 2</li><li>Song 3</li></ul>
+                <h3> {this.props.playlist.name}</h3>
+                <ul>
+                    {
+                        this.props.playlist.songs.map(song => <li>{song.name}</li>)
+                    }
+                </ul>
             </div>
         );
 
@@ -121,12 +125,13 @@ class App extends Component {
                     <HoursCounter
                         /* This will make playlists available within HoursCounterr class's props */
                         playlists={this.state.serverData.user.playlists}/>
-
                     <Filter/>
-                    <Playlist/>
-                    <Playlist/>
-                    <Playlist/>
-                    <Playlist/>
+                    {/* map transforms an array to another array of the same length */}
+                    {this.state.serverData.user.playlists.map(playlist =>
+                        <Playlist playlist={playlist}
+                        />
+                    )}
+
                 </div> : <h1>Loading...</h1>
                 }
             </div>
