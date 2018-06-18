@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import querystring from 'query-string';
 
 let defaultStyle = {
     color: "#fff"
@@ -102,10 +103,8 @@ class App extends Component {
 
     //componentDidMount() is called the first time the component is rendered to the DOM
     componentDidMount() {
-        /* wrapping in setTimeout to fake the loading */
-        setTimeout(() => {
-                this.setState({serverData: fakeServerData});
-            }, 1000);
+        let parsed = querystring.parse(window.location.search);
+        console.log(parsed);
     }
     //render() is called everytime the app needs to render
     render() {
@@ -139,7 +138,8 @@ class App extends Component {
                         <Playlist playlist={playlist}/>
                     )}
 
-                </div> : <h1>Loading...</h1>
+                </div> : <button onClick={()=>window.location = 'http://localhost:8888/login'}
+                        style={{'font-size':'50px'}}>Login with Spotify</button>
                 }
             </div>
         );
