@@ -76,13 +76,14 @@ class Filter extends Component{
 
 class Playlist extends Component{
     render(){
+        let playlist = this.props.playlist;
         return(
             <div style={{...defaultStyle,width:"25%",display:"inline-block"}}>
-                <img/>
-                <h3> {this.props.playlist.name}</h3>
+                <img src={playlist.imageUrl} style={{width:'160px'}}/>
+                <h3> {playlist.name}</h3>
                 <ul>
                     {
-                        this.props.playlist.songs.map(song => <li>{song.name}</li>)
+                        playlist.songs.map(song => <li>{song.name}</li>)
                     }
                 </ul>
             </div>
@@ -106,45 +107,69 @@ class App extends Component {
         // store the token into an object by parsing the querystring
         let parsed = querystring.parse(window.location.search);
         let accessToken = parsed.access_token;
+        console.log("accessToken below");
+        console.log(accessToken);
 
         /*http request
             1st argument: API endpoint. ie)'https://api.spotify.com/v1/me'
             2nd argument: Object literal. Pass the token as a header.
                 ie) headers: {'Authorization': 'Bearer'  + access_token}
             fetch will return a promise so call .then on that promise. .then will get a response that we want to get as JSON.
-            This in turn return a promise which we call .then, this is the actual data
-
+            This in turn return a promise which we call .then, this is the actual data.
+            I use that data to update the serverData
         */
 
         fetch('https://api.spotify.com/v1/me', {
             headers: {'Authorization': 'Bearer ' + accessToken}
         }).then((response) => response.json())
-            .then(data => console.log(data))
+            .then(data => this.setState({
+                user: {
+                    name: data.display_name
+                }
+            }))
+
+
+        /* fetch Spotify playlist data  (me can be replaced with user_id)*/
+        fetch('https://api.spotify.com/v1/me/playlists', {
+            headers: {'Authorization': 'Bearer ' + accessToken}
+        }).then(response => response.json())
+            .then(data => this.setState({
+              playlists: (data.items).map(item => {
+                  console.log(data.items);
+                  return {
+                        name: item.name,
+                      imageUrl: item.images[0].url,
+                        songs: []
+                    }
+              })
+           }))
+
+
     }
     //render() is called everytime the app needs to render
     render() {
         /* ternary operator: first check if userData is set, if so do all this stuff (filter) */
-        let playlistToRender = this.state.serverData.user ? this.state.serverData.user.playlists
-            .filter(playlist =>
+        let playlistToRender =
+            this.state.user &&
+            this.state.playlists
+            ? this.state.playlists.filter(playlist =>
                 playlist.name.toLowerCase().includes(
-                    this.state.filterString.toLowerCase())
-            ) : [];
+                    this.state.filterString.toLowerCase()))
+            : []
         return (
             <div className="App">
                 {/* '&&' so will only fill variable once serverData has user.name properties;
                     I changed && to '?' and ended div with ':' to get 'loading...' (ternary operator)
                 */}
-                {this.state.serverData.user ?
+                {this.state.user ?
                 <div>
                     <h1 style={{...defaultStyle, 'font-size': '54px'}}>
-                        {this.state.serverData.user.name}'s Playlists
+                        {this.state.user.name}'s Playlists
                     </h1>
-                    <PlaylistCounter
-                        /* This will make playlists available within PlaylistCounter class's props */
-                        playlists={playlistToRender}/>
-                    <HoursCounter
-                        /* This will make playlists available within HoursCounterr class's props */
-                        playlists={playlistToRender}/>
+                    {/* This will make playlists available within PlaylistCounter class's props */}
+                    <PlaylistCounter playlists={playlistToRender}/>
+                    {/* This will make playlists available within HoursCounterr class's props */}
+                    <HoursCounter playlists={playlistToRender}/>
                     <Filter onTextChange={text => {
                         this.setState({filterString: text})
                     }}/>
