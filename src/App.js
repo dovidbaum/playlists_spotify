@@ -105,13 +105,16 @@ class App extends Component {
         /* wrapping in setTimeout to fake the loading */
         setTimeout(() => {
                 this.setState({serverData: fakeServerData});
-            },
-            1000);
+            }, 1000);
     }
-
     //render() is called everytime the app needs to render
     render() {
-        let name = 'Dovid';
+        /* ternary operator: first check if userData is set, if so do all this stuff (filter) */
+        let playlistToRender = this.state.serverData.user ? this.state.serverData.user.playlists
+            .filter(playlist =>
+                playlist.name.toLowerCase().includes(
+                    this.state.filterString.toLowerCase())
+            ) : [];
         return (
             <div className="App">
                 {/* '&&' so will only fill variable once serverData has user.name properties;
@@ -124,20 +127,16 @@ class App extends Component {
                     </h1>
                     <PlaylistCounter
                         /* This will make playlists available within PlaylistCounter class's props */
-                        playlists={this.state.serverData.user.playlists}/>
+                        playlists={playlistToRender}/>
                     <HoursCounter
                         /* This will make playlists available within HoursCounterr class's props */
-                        playlists={this.state.serverData.user.playlists}/>
+                        playlists={playlistToRender}/>
                     <Filter onTextChange={text => {
                         this.setState({filterString: text})
                     }}/>
                     {/* map transforms an array to another array of the same length */}
-                    {this.state.serverData.user.playlists.filter(playlist =>
-                        playlist.name.toLowerCase().includes(
-                            this.state.filterString.toLowerCase())
-                    ).map(playlist =>
-                        <Playlist playlist={playlist}
-                        />
+                    {playlistToRender.map(playlist =>
+                        <Playlist playlist={playlist}/>
                     )}
 
                 </div> : <h1>Loading...</h1>
