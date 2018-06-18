@@ -107,8 +107,7 @@ class App extends Component {
         // store the token into an object by parsing the querystring
         let parsed = querystring.parse(window.location.search);
         let accessToken = parsed.access_token;
-        console.log("accessToken below");
-        console.log(accessToken);
+
 
         /*http request
             1st argument: API endpoint. ie)'https://api.spotify.com/v1/me'
