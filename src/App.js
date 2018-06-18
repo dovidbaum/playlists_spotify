@@ -9,7 +9,7 @@ let fakeServerData = {
         name: 'Dovid',
         playlists: [
             {
-                name: 'Summer 2018',
+                name: 'Suummer 2018',
                 songs: [{name: 'live that long', duration: 1375},
                     {name: 'Fu-gee-la', duration: 4583}, {name:'North Korea', duration: 7352}]
             },
@@ -66,7 +66,7 @@ class Filter extends Component{
         return(
             <div style={defaultStyle}>
                 <img/>
-                <input type="text"/>
+                <input type="text" onKeyUp={event => this.props.onTextChange(event.target.value)}/>
                 Filter
             </div>
         );
@@ -94,7 +94,10 @@ class Playlist extends Component{
 class App extends Component {
     constructor() {
         super();
-        this.state = {serverData: {}}
+        this.state = {
+            serverData: {},
+            filterString: ''
+        }
     }
 
     //componentDidMount() is called the first time the component is rendered to the DOM
@@ -103,7 +106,7 @@ class App extends Component {
         setTimeout(() => {
                 this.setState({serverData: fakeServerData});
             },
-            2000);
+            1000);
     }
 
     //render() is called everytime the app needs to render
@@ -125,9 +128,14 @@ class App extends Component {
                     <HoursCounter
                         /* This will make playlists available within HoursCounterr class's props */
                         playlists={this.state.serverData.user.playlists}/>
-                    <Filter/>
+                    <Filter onTextChange={text => {
+                        this.setState({filterString: text})
+                    }}/>
                     {/* map transforms an array to another array of the same length */}
-                    {this.state.serverData.user.playlists.map(playlist =>
+                    {this.state.serverData.user.playlists.filter(playlist =>
+                        playlist.name.toLowerCase().includes(
+                            this.state.filterString.toLowerCase())
+                    ).map(playlist =>
                         <Playlist playlist={playlist}
                         />
                     )}
