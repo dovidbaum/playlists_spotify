@@ -103,8 +103,23 @@ class App extends Component {
 
     //componentDidMount() is called the first time the component is rendered to the DOM
     componentDidMount() {
+        // store the token into an object by parsing the querystring
         let parsed = querystring.parse(window.location.search);
-        console.log(parsed);
+        let accessToken = parsed.access_token;
+
+        /*http request
+            1st argument: API endpoint. ie)'https://api.spotify.com/v1/me'
+            2nd argument: Object literal. Pass the token as a header.
+                ie) headers: {'Authorization': 'Bearer'  + access_token}
+            fetch will return a promise so call .then on that promise. .then will get a response that we want to get as JSON.
+            This in turn return a promise which we call .then, this is the actual data
+
+        */
+
+        fetch('https://api.spotify.com/v1/me', {
+            headers: {'Authorization': 'Bearer ' + accessToken}
+        }).then((response) => response.json())
+            .then(data => console.log(data))
     }
     //render() is called everytime the app needs to render
     render() {
