@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import queryString from 'query-string'
 
 
 let defaultStyle = {
@@ -105,7 +106,7 @@ class App extends Component {
     //componentDidMount() is called the first time the component is rendered to the DOM
     componentDidMount() {
         // store the token into an object by parsing the querystring
-        let parsed = querystring.parse(window.location.search);
+        let parsed = queryString.parse(window.location.search);
         let accessToken = parsed.access_token;
 if(!accessToken){
     return;
