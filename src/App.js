@@ -55,9 +55,12 @@ class HoursCounter extends Component{
         let totalDuration = allSongs.reduce((acc,eachSong)=>{
             return (acc + eachSong.duration)
         },0);
-        return(
-            <div style={{...defaultStyle,width:"40%", display: "inline-block"}}>
-                <h2>{Math.floor(totalDuration/60)} hours</h2>
+        return (
+            <div style={{...defaultStyle, width: "40%", display: 'inline-block'}}>
+                {(Math.round(totalDuration/3600) <= 1)
+                    ? <h2>{Math.round(totalDuration/60)} Minutes</h2>
+                    : <h2>{Math.round(totalDuration/3600)} Hours</h2>
+                }
             </div>
         );
     }
@@ -135,13 +138,43 @@ if(!accessToken){
         fetch('https://api.spotify.com/v1/me/playlists', {
             headers: {'Authorization': 'Bearer ' + accessToken}
         }).then(response => response.json())
-            .then(data => this.setState({
-              playlists: (data.items).map(item => {
-                  console.log(data.items);
+            .then(playlistData => {
+                let playlists = playlistData.items;
+                /* trackDataPromises is an array of promises */
+               let trackDataPromises = playlists.map(playlist => {
+                   let responsePromise = fetch(playlist.tracks.href, {
+                       headers: {'Authorization': 'Bearer ' + accessToken}
+                   })
+                   let trackDataPromise = responsePromise
+                       .then(response => response.json())
+                   return trackDataPromise;
+               })
+                /* Do something once all the promises have delivered
+                   trackDatas are the tracks for every playlist */
+                let allTracksDataPromises = Promise.all(trackDataPromises)
+                let playlistPromise = allTracksDataPromises.then(trackDatas =>{
+                    /* for each TrackDatas, assign that trackData to the
+                       corresponding playlist item*/
+                    trackDatas.forEach((trackData, i) => {
+                        playlists[i].trackDatas = trackData.items
+                            .map(item => item.track)
+                            .map(trackData => ({
+                                name: trackData.name,
+                                duration: trackData.duration_ms / 1000
+                            }))
+                    })
+                    return playlists;
+                })
+                return playlistPromise;
+
+            })
+            .then(playlists => this.setState({
+              playlists: playlists.map(item => {
+                  console.log(item.trackDatas)
                   return {
                         name: item.name,
                       imageUrl: item.images[0].url,
-                        songs: []
+                        songs: item.trackDatas.slice(0,3)
                     }
               })
            }))
@@ -183,7 +216,7 @@ if(!accessToken){
                 </div> : <button onClick={()=> {
                         window.location = window.location.href.includes('localhost')
                         ? 'http://localhost:8888/login'
-                        : 'https://playlists-spotify-backend.herokuapp.com/login'        }
+                        : 'https://playlists-spotify-backend.herokuapp.com/login'}
                     }
                         style={{'font-size':'50px'}}>Login with Spotify</button>
                 }
