@@ -180,7 +180,11 @@ if(!accessToken){
                         <Playlist playlist={playlist}/>
                     )}
 
-                </div> : <button onClick={()=>window.location = 'http://localhost:8888/login'}
+                </div> : <button onClick={()=> {
+                        window.location = window.location.href.includes('localhost')
+                        ? 'http://localhost:8888/login'
+                        : 'https://playlists-spotify-backend.herokuapp.com/login'        }
+                    }
                         style={{'font-size':'50px'}}>Login with Spotify</button>
                 }
             </div>
